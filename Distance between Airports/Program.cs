@@ -1,3 +1,9 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using static Distance_between_Airports.BusinessLogic.Distance;
 
-Console.WriteLine("Hello, World!");
+var httpClient = new HttpClient();
+await SetCoordinates(new string[]{"DME","LED"}, httpClient);
+Console.WriteLine(GetDistance());
+Console.WriteLine(GetDistanceTest());
+
+
+
