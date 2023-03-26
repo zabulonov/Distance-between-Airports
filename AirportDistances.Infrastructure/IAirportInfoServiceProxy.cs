@@ -4,5 +4,5 @@ namespace AirportDistances.Infrastructure;
 
 public interface IAirportInfoServiceProxy
 {
-    Task<AirportInfo> GetAirportInfo(string code);
+    Task<Result<AirportInfo>> GetAirportInfo(string code);
 }

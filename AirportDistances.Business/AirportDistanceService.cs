@@ -1,24 +1,37 @@
+using AirportDistance.Business.States;
 using AirportDistances.Infrastructure;
 using AirportDistances.Infrastructure.Contracts;
 
 namespace AirportDistance.Business;
 
-public class Distance
+public class AirportDistanceService
 {
     private readonly IAirportInfoServiceProxy _airportInfoServiceProxy;
     private const int EarthRadius = 6371;
 
-    public Distance(IAirportInfoServiceProxy airportInfoServiceProxy)
+    public AirportDistanceService(IAirportInfoServiceProxy airportInfoServiceProxy)
     {
         _airportInfoServiceProxy = airportInfoServiceProxy;
     }
 
-    public async Task<double> GetDistance(string[] airportCodes)
+    public async Task<DistanceState> GetDistance(string[] airportCodes)
     {
         var firstAirportInfo = await _airportInfoServiceProxy.GetAirportInfo(airportCodes[0]);
         var secondAirportInfo = await _airportInfoServiceProxy.GetAirportInfo(airportCodes[1]);
-        var distance = CalculateDistance(firstAirportInfo, secondAirportInfo);
-        return distance;
+        if (firstAirportInfo.IsSuccess && secondAirportInfo.IsSuccess)
+        {
+            var distance = CalculateDistance(firstAirportInfo.Value, secondAirportInfo.Value);
+            return new DistanceState
+            {
+                Distance = distance
+            };    
+        }
+
+        return new DistanceState
+        {
+            Distance = 0,
+            ErrorMessage = string.Join(",", firstAirportInfo.FaultMessage, secondAirportInfo.FaultMessage)
+        };
     }
 
     private static double CalculateDistance(AirportInfo firstAirportInfo, AirportInfo secondAirportInfo)

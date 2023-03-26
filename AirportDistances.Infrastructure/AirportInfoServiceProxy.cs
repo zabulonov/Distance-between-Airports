@@ -7,33 +7,40 @@ namespace AirportDistances.Infrastructure;
 public class AirportInfoServiceProxy : IAirportInfoServiceProxy
 {
     private readonly HttpClient _httpClient;
-
-    private const string RequestUrl = "https://places-dev.cteleport.com/airports";
-
+    
     public AirportInfoServiceProxy(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
-    
-    public async Task<AirportInfo> GetAirportInfo(string code)
+
+    public async Task<Result<AirportInfo>> GetAirportInfo(string code)
     {
-        using var response = await _httpClient.GetAsync($"{RequestUrl}/{code}");
+        using var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/{code}");
         if (response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.NotFound)
         {
             Console.WriteLine(response.StatusCode);
-            return null;
+            return new Result<AirportInfo>
+            {
+                IsSuccess = false,
+                FaultMessage = $"Airport info for iata code {code} result:{response.StatusCode.ToString()}"
+            };
         }
 
         var data = await response.Content.ReadFromJsonAsync<Models.AirportInfo>();
-        return new AirportInfo
+        return new Result<AirportInfo>
         {
-            City = data.City,
-            Country = data.City,
-            Location = new AirportInfo.LocationInfo
+            Value = new AirportInfo
             {
-                Lat = data.Location.Lat,
-                Lon = data.Location.Lon
-            }
+                City = data.City,
+                Country = data.City,
+                Location = new AirportInfo.LocationInfo
+                {
+                    Lat = data.Location.Lat,
+                    Lon = data.Location.Lon
+                }
+            },
+            IsSuccess = true,
+            FaultMessage = string.Empty
         };
     }
 }
