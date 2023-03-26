@@ -1,4 +1,4 @@
-namespace Distance_between_Airports.Models;
+namespace AirportDistances.Infrastructure.Models;
 
 public class Location
 {

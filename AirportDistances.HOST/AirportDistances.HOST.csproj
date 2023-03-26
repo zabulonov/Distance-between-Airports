@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>AirportDistances</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AirportDistances.Business\AirportDistances.Business.csproj" />
+      <ProjectReference Include="..\AirportDistances.Infrastructure\AirportDistances.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>
