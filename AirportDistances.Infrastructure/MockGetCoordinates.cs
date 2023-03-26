@@ -11,7 +11,7 @@ public class MockGetCoordinates : IGetCoordinates
         var location = new Location
         {
             Lat = 1,
-            Lon1 = 1
+            Lon = 1
         };
 
         Locations[0] = location;

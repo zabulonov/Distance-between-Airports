@@ -1,4 +1,5 @@
-using AirportDistances.BusinessLogic;
+using AirportDistance.Business;
+using AirportDistances.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AirportDistances;
@@ -19,10 +20,4 @@ public class DistanceController
     {
         return await _distance.GetDistance(new[] { airportCodes.IataFrom, airportCodes.IataTo });
     } 
-}
-
-public class AirportCodes
-{
-    public string IataFrom { get; set; }
-    public string IataTo { get; set; }
 }

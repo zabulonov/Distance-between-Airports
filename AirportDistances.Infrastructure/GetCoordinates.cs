@@ -9,6 +9,8 @@ public class GetCoordinates : IGetCoordinates
     private readonly HttpClient _httpClient;
     private static readonly Location?[] Locations = new Location[2];
 
+    private const string RequestUrl = "https://places-dev.cteleport.com/airports/";
+
     public GetCoordinates(HttpClient httpClient)
     {
         _httpClient = httpClient;
@@ -18,7 +20,7 @@ public class GetCoordinates : IGetCoordinates
     {
         for (int i = 0; i < 2; i++)
         {
-            using var response = await _httpClient.GetAsync("https://places-dev.cteleport.com/airports/" + codes[i]);
+            using var response = await _httpClient.GetAsync( RequestUrl + codes[i]);
             if (response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.NotFound)
             {
                 Console.WriteLine(response.StatusCode);
@@ -27,9 +29,24 @@ public class GetCoordinates : IGetCoordinates
             {
                 var data = await response.Content.ReadFromJsonAsync<Root>();
                 Locations[i] = data?.Location;
-                Locations[i]?.ToRadians();
             }
         }
+    }
+
+    public async Task<Root?> GetAirportInfo(string code)
+    {
+        using var response = await _httpClient.GetAsync( RequestUrl + code);
+        if (response.StatusCode == HttpStatusCode.BadRequest || response.StatusCode == HttpStatusCode.NotFound)
+        {
+            Console.WriteLine(response.StatusCode);
+        }
+        else
+        {
+            var data = await response.Content.ReadFromJsonAsync<Root>();
+            return data;
+        }
+
+        throw new InvalidOperationException();
     }
 
     public Location?[] GetLocations()
