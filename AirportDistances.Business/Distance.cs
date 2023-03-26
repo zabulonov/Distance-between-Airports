@@ -1,30 +1,44 @@
 using AirportDistances.Infrastructure;
+using AirportDistances.Infrastructure.Contracts;
 
 namespace AirportDistance.Business;
 
 public class Distance
 {
-    private readonly IGetCoordinates _getCoordinates;
+    private readonly IAirportInfoServiceProxy _airportInfoServiceProxy;
+    private const int EarthRadius = 6371;
 
-    public Distance(IGetCoordinates getCoordinates)
+    public Distance(IAirportInfoServiceProxy airportInfoServiceProxy)
     {
-        _getCoordinates = getCoordinates;
+        _airportInfoServiceProxy = airportInfoServiceProxy;
     }
 
     public async Task<double> GetDistance(string[] airportCodes)
     {
-        await _getCoordinates.SetCoordinates(airportCodes);
-        var points = _getCoordinates.GetLocations();
-        points[0]?.ToRadians();
-        points[1]?.ToRadians();
-
-        const int earthRadius = 6371;
-
-        var sinLat = Math.Pow(Math.Sin((points[1]!.Lat - points[0]!.Lat) / 2), 2);
-
-        var sinLon = Math.Pow(Math.Sin((points[1]!.Lon - points[0]!.Lon) / 2), 2);
-        
-        return earthRadius * 2 * Math.Asin(Math.Sqrt(sinLat + Math.Cos(points[0]!.Lat) * Math.Cos(points[1]!.Lat)*sinLon));
+        var firstAirportInfo = await _airportInfoServiceProxy.GetAirportInfo(airportCodes[0]);
+        var secondAirportInfo = await _airportInfoServiceProxy.GetAirportInfo(airportCodes[1]);
+        var distance = CalculateDistance(firstAirportInfo, secondAirportInfo);
+        return distance;
     }
-    
+
+    private static double CalculateDistance(AirportInfo firstAirportInfo, AirportInfo secondAirportInfo)
+    {
+        var firstAirportLatInRadians = ToRadians(firstAirportInfo.Location.Lat);
+        var firstAirportLonInRadians = ToRadians(firstAirportInfo.Location.Lon);
+
+        var secondAirportLatInRadians = ToRadians(secondAirportInfo.Location.Lat);
+        var secondAirportLonInRadians = ToRadians(secondAirportInfo.Location.Lon);
+        
+        var sinLat = Math.Pow(Math.Sin((secondAirportLatInRadians - firstAirportLatInRadians) / 2), 2);
+        var sinLon = Math.Pow(Math.Sin((secondAirportLonInRadians - firstAirportLonInRadians) / 2), 2);
+
+        return EarthRadius * 2 * Math.Asin(Math.Sqrt(sinLat + Math.Cos(secondAirportLatInRadians) *
+            Math.Cos(secondAirportLatInRadians) * sinLon));
+    }
+
+
+    private static double ToRadians(double value)
+    {
+        return value * Math.PI / 180.0;
+    }
 }

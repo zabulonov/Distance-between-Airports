@@ -5,7 +5,7 @@ using AirportDistances.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<IGetCoordinates, GetCoordinates>();
+builder.Services.AddSingleton<IAirportInfoServiceProxy, AirportInfoServiceProxy>();
 builder.Services.AddSingleton<Distance>();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient();
