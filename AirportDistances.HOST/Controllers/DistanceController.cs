@@ -1,23 +1,24 @@
 using AirportDistance.Business;
+using AirportDistance.Business.States;
 using AirportDistances.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AirportDistances;
+namespace AirportDistances.Controllers;
 
 [ApiController]
 [Route("distance")]
 public class DistanceController
 {
-    private readonly Distance _distance;
+    private readonly AirportDistanceService _airportDistanceService;
 
-    public DistanceController(Distance distance)
+    public DistanceController(AirportDistanceService airportDistanceService)
     {
-        _distance = distance;
+        _airportDistanceService = airportDistanceService;
     }
 
     [HttpGet]
-    public async Task<double> GetDistance([FromBody] AirportCodes airportCodes)
+    public async Task<DistanceState> GetDistance([FromBody] AirportCodes airportCodes)
     {
-        return await _distance.GetDistance(new[] { airportCodes.IataFrom, airportCodes.IataTo });
+        return await _airportDistanceService.GetDistance(new[] { airportCodes.IataFrom, airportCodes.IataTo });
     } 
 }

@@ -1,6 +1,6 @@
-namespace AirportDistances.Infrastructure.Models;
+namespace AirportDistances.Infrastructure.Contracts;
 
-public class Root
+public class AirportInfo
 {
     public string Country { get; set; }
     public string CityIata { get; set; }
@@ -10,8 +10,14 @@ public class Root
     public string CountryIata { get; set; }
     public int Rating { get; set; }
     public string Name { get; set; }
-    public Location Location { get; set; }
+    public LocationInfo Location { get; set; }
     public string Type { get; set; }
     public int Hubs { get; set; }
     
+    public class LocationInfo
+    {
+        public double Lon { get; set; }
+        public double Lat { get; set; }
+
+    }
 }
