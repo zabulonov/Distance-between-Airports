@@ -1,23 +1,54 @@
-namespace AirportDistances.Infrastructure.Models;
+using Microsoft.VisualBasic.CompilerServices;
+using AirportInfo = AirportDistances.Infrastructure.Contracts.AirportInfo;
+
+namespace AirportDistances.Infrastructure;
 
 public class MockAirportInfoServiceProxy : IAirportInfoServiceProxy
 {
-    public async Task<Result<AirportInfo>> GetAirportInfo(string code)
+    private TestAirports[] _testAirports;
+
+    public MockAirportInfoServiceProxy(TestAirports[] testAirports)
     {
-        return new Result<AirportInfo>
+        _testAirports = testAirports;
+    }
+    public Task<Result<Contracts.AirportInfo>> GetAirportInfo(string code)
+    {
+        foreach (var item in _testAirports)
         {
-            Value = new AirportInfo
+            if (code == item.Code)
             {
-                City = "testCity",
-                Country = "testCountry",
-                Location = new AirportInfo.LocationInfo
+                return Task.FromResult(new Result<Contracts.AirportInfo>
                 {
-                    Lat = 1,
-                    Lon = 1
-                }
-            },
-            IsSuccess = true,
-            FaultMessage = string.Empty
-        };
+                    Value = new Contracts.AirportInfo
+                    {
+                        City = "testCity",
+                        Country = "testCountry",
+                        Location = new Contracts.AirportInfo.LocationInfo
+                        {
+                            Lat = item.Lat,
+                            Lon = item.Lon
+                        }
+                    },
+                    IsSuccess = true,
+                    FaultMessage = string.Empty
+                });
+            }
+        }
+        throw new Exception("Ты не умеешь писать тесты?");
+    }
+
+    public class TestAirports
+    {
+        public string Code { get; }
+        public double Lat { get; }
+        public double Lon { get; }
+
+
+        public TestAirports(string code, double lat, double lon)
+        {
+            Code = code;
+            Lat = lat;
+            Lon = lon;
+        }
     }
 }
