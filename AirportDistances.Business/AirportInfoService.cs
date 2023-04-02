@@ -8,7 +8,7 @@ namespace AirportDistance.Business;
 public class AirportInfoService
 {
     private readonly IAirportInfoServiceProxy _airportInfoServiceProxy;
-    private IMemoryCache _cache;
+    private readonly IMemoryCache _cache;
 
     public AirportInfoService(IAirportInfoServiceProxy airportInfoServiceProxy, IMemoryCache cache)
     {
@@ -24,12 +24,7 @@ public class AirportInfoService
             var data = await _airportInfoServiceProxy.GetAirportInfo(code);
             if (data.IsSuccess)
             {
-                info = new InfoState
-                {
-                    airportInfo = new AirportInfo(),
-                };
-                info.airportInfo = data.Value;
-                info.airportInfo.Code = code;
+                info = new InfoState(data.Value, code);
             }
             else
             {
@@ -39,7 +34,7 @@ public class AirportInfoService
                 }; 
             }
     
-            _cache.Set(info.airportInfo.Code, info,
+            _cache.Set(info.AirportInfo.Code, info,
                 new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(5)));
         }
         return info!;

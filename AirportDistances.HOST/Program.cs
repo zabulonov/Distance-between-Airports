@@ -15,6 +15,7 @@ builder.Services.AddHttpClient<IAirportInfoServiceProxy, AirportInfoServiceProxy
     httpClient.BaseAddress = new Uri(baseAddress);
 });
 builder.Services.AddMemoryCache();
+
 //Configure
 var app = builder.Build();
 app.UseRouting();
@@ -22,11 +23,7 @@ app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 app.MapGet("/", () => "Hello World!");
 app.Run();
 
-//1. разделить инфраструктурные модели и модели бизнес-логики +++
-//2. поправить формулу / заюзать готовую библиотеку GeoCoordinates +++
-//3. почитать про mock/stub ++
-//4. написать тесты на GetDistance ++
-//5. вынести бизнес-логику в отдельную сборку +++
-//6. places-dev.cteleport.com вынести в конфиг +++
-//7. сделать чтобы SetCoordinates (с изменённым названием) возвращал инфу по одному аэропорту +++
-//8*. попробовать прикрутить кэш, чтобы кэшировать инфу по аэропортам
+
+// 1. перенести использование кэша в AirportInfoServiceProxy
+// 2. заменить свою формулу на использование библиотеки GeoCoordinates 
+// 3. перейти от использования InMemory cache к Redis https://hub.docker.com/_/redis

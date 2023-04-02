@@ -1,29 +1,29 @@
-using Microsoft.VisualBasic.CompilerServices;
+using AirportDistances.Infrastructure;
 using AirportInfo = AirportDistances.Infrastructure.Contracts.AirportInfo;
 
-namespace AirportDistances.Infrastructure;
+namespace Business.Tests;
 
 public class MockAirportInfoServiceProxy : IAirportInfoServiceProxy
 {
-    private TestAirports[] _testAirports;
+    private readonly TestAirports[] _testAirports;
 
     public MockAirportInfoServiceProxy(TestAirports[] testAirports)
     {
         _testAirports = testAirports;
     }
-    public Task<Result<Contracts.AirportInfo>> GetAirportInfo(string code)
+    public Task<Result<AirportInfo>> GetAirportInfo(string code)
     {
         foreach (var item in _testAirports)
         {
             if (code == item.Code)
             {
-                return Task.FromResult(new Result<Contracts.AirportInfo>
+                return Task.FromResult(new Result<AirportInfo>
                 {
-                    Value = new Contracts.AirportInfo
+                    Value = new AirportInfo
                     {
                         City = "testCity",
                         Country = "testCountry",
-                        Location = new Contracts.AirportInfo.LocationInfo
+                        Location = new AirportInfo.LocationInfo
                         {
                             Lat = item.Lat,
                             Lon = item.Lon
@@ -34,7 +34,12 @@ public class MockAirportInfoServiceProxy : IAirportInfoServiceProxy
                 });
             }
         }
-        throw new Exception("Ты не умеешь писать тесты?");
+        return Task.FromResult(new Result<AirportInfo>
+        {
+            Value = null,
+            IsSuccess = false,
+            FaultMessage = "Airport not found"
+        });
     }
 
     public class TestAirports

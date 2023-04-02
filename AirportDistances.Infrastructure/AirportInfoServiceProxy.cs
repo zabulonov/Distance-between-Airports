@@ -15,6 +15,7 @@ public class AirportInfoServiceProxy : IAirportInfoServiceProxy
 
     public async Task<Result<AirportInfo>> GetAirportInfo(string code)
     {
+        #warning перенести взаимодействие с кэшем сюда
         using var response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/{code}");
         if (response.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.NotFound)
         {
