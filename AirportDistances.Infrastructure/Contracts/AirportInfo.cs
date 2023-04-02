@@ -2,6 +2,8 @@ namespace AirportDistances.Infrastructure.Contracts;
 
 public class AirportInfo
 {
+    public string Code { get; set; }
+    
     public string Country { get; set; }
     public string CityIata { get; set; }
     public string Iata { get; set; }
@@ -18,6 +20,5 @@ public class AirportInfo
     {
         public double Lon { get; set; }
         public double Lat { get; set; }
-
     }
 }
