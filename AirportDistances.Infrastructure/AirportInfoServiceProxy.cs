@@ -7,7 +7,7 @@ namespace AirportDistances.Infrastructure;
 public class AirportInfoServiceProxy : IAirportInfoServiceProxy
 {
     private readonly HttpClient _httpClient;
-    
+
     public AirportInfoServiceProxy(HttpClient httpClient)
     {
         _httpClient = httpClient;
@@ -28,10 +28,12 @@ public class AirportInfoServiceProxy : IAirportInfoServiceProxy
         }
 
         var data = await response.Content.ReadFromJsonAsync<Models.AirportInfo>();
+        
         return new Result<AirportInfo>
         {
             Value = new AirportInfo
             {
+                Code = data.Iata,
                 City = data.City,
                 Country = data.City,
                 Location = new AirportInfo.LocationInfo

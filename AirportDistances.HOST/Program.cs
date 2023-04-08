@@ -1,6 +1,7 @@
 //ConfigureServices
 
 using AirportDistance.Business;
+using AirportDistances;
 using AirportDistances.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +26,7 @@ app.Run();
 
 
 // 1. перенести использование кэша в AirportInfoServiceProxy
-// 2. заменить свою формулу на использование библиотеки GeoCoordinates 
+// 2. заменить свою формулу на использование библиотеки GeoCoordinates +++
 // 3. перейти от использования InMemory cache к Redis https://hub.docker.com/_/redis
 // 4. https://docs.docker.com/compose/ 
 // 5. https://docs.docker.com/compose/samples-for-compose/

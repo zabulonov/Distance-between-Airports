@@ -1,6 +1,7 @@
 using AirportDistance.Business.States;
 using AirportDistances.Infrastructure;
 using AirportDistances.Infrastructure.Contracts;
+using GeoCoordinatePortable;
 
 namespace AirportDistance.Business;
 
@@ -24,7 +25,7 @@ public class AirportDistanceService
             return new DistanceState
             {
                 Distance = distance
-            };    
+            };
         }
 
         return new DistanceState
@@ -36,22 +37,9 @@ public class AirportDistanceService
 
     private static double CalculateDistance(AirportInfo firstAirportInfo, AirportInfo secondAirportInfo)
     {
-        var firstAirportLatInRadians = ToRadians(firstAirportInfo.Location.Lat);
-        var firstAirportLonInRadians = ToRadians(firstAirportInfo.Location.Lon);
+        var pin1 = new GeoCoordinate(firstAirportInfo.Location.Lat, firstAirportInfo.Location.Lon);
+        var pin2 = new GeoCoordinate(secondAirportInfo.Location.Lat, secondAirportInfo.Location.Lon);
 
-        var secondAirportLatInRadians = ToRadians(secondAirportInfo.Location.Lat);
-        var secondAirportLonInRadians = ToRadians(secondAirportInfo.Location.Lon);
-        
-        var sinLat = Math.Pow(Math.Sin((secondAirportLatInRadians - firstAirportLatInRadians) / 2), 2);
-        var sinLon = Math.Pow(Math.Sin((secondAirportLonInRadians - firstAirportLonInRadians) / 2), 2);
-
-        return EarthRadius * 2 * Math.Asin(Math.Sqrt(sinLat + Math.Cos(secondAirportLatInRadians) *
-            Math.Cos(secondAirportLatInRadians) * sinLon));
-    }
-
-
-    private static double ToRadians(double value)
-    {
-        return value * Math.PI / 180.0;
+        return Math.Round(pin1.GetDistanceTo(pin2) / 1000);
     }
 }
