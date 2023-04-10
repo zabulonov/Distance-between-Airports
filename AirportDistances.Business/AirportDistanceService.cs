@@ -10,25 +10,25 @@ namespace AirportDistance.Business;
 public class AirportDistanceService
 {
     private readonly IAirportInfoServiceProxy _airportInfoServiceProxy;
-    IDistributedCache cache;
-    private const int EarthRadius = 6371;
+    private readonly IDistributedCache _cache;
 
     public AirportDistanceService(IAirportInfoServiceProxy airportInfoServiceProxy, IDistributedCache cache)
     {
         _airportInfoServiceProxy = airportInfoServiceProxy;
-        this.cache = cache;
+        _cache = cache;
     }
 
     public async Task<DistanceState> GetDistance(string[] airportCodes)
     {
         Result<AirportInfo> firstAirportInfo = null;
         Result<AirportInfo> secondAirportInfo = null;
-        var firstAirportInfoString = await cache.GetStringAsync(airportCodes[0]);
-        var secondAirportInfoString = await cache.GetStringAsync(airportCodes[1]);
+        
+        var firstAirportInfoString = await _cache.GetStringAsync(airportCodes[0]);
+        var secondAirportInfoString = await _cache.GetStringAsync(airportCodes[1]);
 
         if (firstAirportInfoString != null) 
             firstAirportInfo = JsonSerializer.Deserialize<Result<AirportInfo>>(firstAirportInfoString);
-
+        
         if (secondAirportInfoString != null) 
             secondAirportInfo = JsonSerializer.Deserialize<Result<AirportInfo>>(secondAirportInfoString);
         
@@ -38,20 +38,20 @@ public class AirportDistanceService
         firstAirportInfoString = JsonSerializer.Serialize(firstAirportInfo);
         secondAirportInfoString = JsonSerializer.Serialize(secondAirportInfo);
         
-        if (firstAirportInfo.IsSuccess && secondAirportInfo.IsSuccess)
-        {
-            await cache.SetStringAsync(firstAirportInfo.Value.Code, firstAirportInfoString,
-                new DistributedCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-                });
-
-            await cache.SetStringAsync(secondAirportInfo.Value.Code, secondAirportInfoString,
-                new DistributedCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-                });
-        }
+        // if (firstAirportInfo.IsSuccess && secondAirportInfo.IsSuccess)
+        // {
+        //     await _cache.SetStringAsync(firstAirportInfo.Value.Code, firstAirportInfoString,
+        //         new DistributedCacheEntryOptions
+        //         {
+        //             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+        //         });
+        //
+        //     await _cache.SetStringAsync(secondAirportInfo.Value.Code, secondAirportInfoString,
+        //         new DistributedCacheEntryOptions
+        //         {
+        //             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+        //         });
+        // }
 
         if (firstAirportInfo.IsSuccess && secondAirportInfo.IsSuccess)
         {
