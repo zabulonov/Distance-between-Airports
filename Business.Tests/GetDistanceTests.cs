@@ -39,12 +39,14 @@ public class GetDistanceTests
         var options = new DistributedCacheEntryOptions();
         options.SetSlidingExpiration(TimeSpan.FromMinutes(5));
         cacheMock.Setup(c => c.SetAsync("mykey", null, options, default)).Returns(Task.CompletedTask);
+        
         var mock = new MockAirportInfoServiceProxy(_tests);
 
         var airportDistanceService = new AirportDistanceService(mock, cacheMock.Object);
 
         var distanceResult = await airportDistanceService.GetDistance(new[] { firstCode, secondCode });
 
+        
         distanceResult.ErrorMessage.Should().BeNull();
         distanceResult.Distance.Should().BeApproximately(expected, Delta);
 

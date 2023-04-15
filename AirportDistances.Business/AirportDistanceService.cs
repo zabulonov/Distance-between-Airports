@@ -10,12 +10,12 @@ namespace AirportDistance.Business;
 public class AirportDistanceService
 {
     private readonly IAirportInfoServiceProxy _airportInfoServiceProxy;
-    private readonly IDistributedCache _cache;
+    private readonly IDistributedCache _redisCacheAirportsInfo;
 
-    public AirportDistanceService(IAirportInfoServiceProxy airportInfoServiceProxy, IDistributedCache cache)
+    public AirportDistanceService(IAirportInfoServiceProxy airportInfoServiceProxy, IDistributedCache redisCacheAirportsInfo)
     {
         _airportInfoServiceProxy = airportInfoServiceProxy;
-        _cache = cache;
+        _redisCacheAirportsInfo = redisCacheAirportsInfo;
     }
 
     public async Task<DistanceState> GetDistance(string[] airportCodes)
@@ -23,36 +23,42 @@ public class AirportDistanceService
         Result<AirportInfo> firstAirportInfo = null;
         Result<AirportInfo> secondAirportInfo = null;
         
-        var firstAirportInfoString = await _cache.GetStringAsync(airportCodes[0]);
-        var secondAirportInfoString = await _cache.GetStringAsync(airportCodes[1]);
+        var firstAirportInfoString = await _redisCacheAirportsInfo.GetStringAsync(airportCodes[0]);
+        var secondAirportInfoString = await _redisCacheAirportsInfo.GetStringAsync(airportCodes[1]);
 
-        if (firstAirportInfoString != null) 
+        if (firstAirportInfoString != null)
             firstAirportInfo = JsonSerializer.Deserialize<Result<AirportInfo>>(firstAirportInfoString);
-        
-        if (secondAirportInfoString != null) 
+
+        if (secondAirportInfoString != null)
             secondAirportInfo = JsonSerializer.Deserialize<Result<AirportInfo>>(secondAirportInfoString);
-        
+
         firstAirportInfo ??= await _airportInfoServiceProxy.GetAirportInfo(airportCodes[0]);
         secondAirportInfo ??= await _airportInfoServiceProxy.GetAirportInfo(airportCodes[1]);
 
-        firstAirportInfoString = JsonSerializer.Serialize(firstAirportInfo);
-        secondAirportInfoString = JsonSerializer.Serialize(secondAirportInfo);
+        if (firstAirportInfo.IsSuccess)
+        {
+            // Я думаю, в теории еще нужно проверять наличие этого кеша. Или нет?
+            firstAirportInfoString = JsonSerializer.Serialize(firstAirportInfo);
+            await _redisCacheAirportsInfo.SetStringAsync(firstAirportInfo.Value.Code, firstAirportInfoString,
+                new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                });
+            Console.WriteLine($"Redis save code {firstAirportInfo.Value.Code}");
+        }
         
-        // if (firstAirportInfo.IsSuccess && secondAirportInfo.IsSuccess)
-        // {
-        //     await _cache.SetStringAsync(firstAirportInfo.Value.Code, firstAirportInfoString,
-        //         new DistributedCacheEntryOptions
-        //         {
-        //             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-        //         });
-        //
-        //     await _cache.SetStringAsync(secondAirportInfo.Value.Code, secondAirportInfoString,
-        //         new DistributedCacheEntryOptions
-        //         {
-        //             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-        //         });
-        // }
-
+        if (secondAirportInfo.IsSuccess)
+        {
+            secondAirportInfoString = JsonSerializer.Serialize(secondAirportInfo);
+            await _redisCacheAirportsInfo.SetStringAsync(secondAirportInfo.Value.Code, secondAirportInfoString,
+                new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                });
+            Console.WriteLine($"Redis save code {secondAirportInfo.Value.Code}");
+        }
+        
+        
         if (firstAirportInfo.IsSuccess && secondAirportInfo.IsSuccess)
         {
             var distance = CalculateDistance(firstAirportInfo.Value, secondAirportInfo.Value);
