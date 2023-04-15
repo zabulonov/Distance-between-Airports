@@ -17,6 +17,15 @@ builder.Services.AddHttpClient<IAirportInfoServiceProxy, AirportInfoServiceProxy
 });
 builder.Services.AddMemoryCache();
 
+
+// Redis Cache
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.InstanceName = "RedisDemos_"; // unique to the app
+});
+
+
 //Configure
 var app = builder.Build();
 app.UseRouting();
@@ -25,9 +34,9 @@ app.MapGet("/", () => "Hello World!");
 app.Run();
 
 
-// 1. перенести использование кэша в AirportInfoServiceProxy
+// 1. перенести использование кэша в AirportInfoServiceProxy +++
 // 2. заменить свою формулу на использование библиотеки GeoCoordinates +++
-// 3. перейти от использования InMemory cache к Redis https://hub.docker.com/_/redis
+// 3. перейти от использования InMemory cache к Redis https://hub.docker.com/_/redis +++
 // 4. https://docs.docker.com/compose/ 
 // 5. https://docs.docker.com/compose/samples-for-compose/
 // 6. https://github.com/docker/awesome-compose/tree/master/aspnet-mssql

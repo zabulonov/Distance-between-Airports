@@ -1,4 +1,5 @@
 using AirportDistances.Infrastructure;
+using Microsoft.Extensions.Caching.Distributed;
 using AirportInfo = AirportDistances.Infrastructure.Contracts.AirportInfo;
 
 namespace Business.Tests;
@@ -6,7 +7,6 @@ namespace Business.Tests;
 public class MockAirportInfoServiceProxy : IAirportInfoServiceProxy
 {
     private readonly TestAirports[] _testAirports;
-
     public MockAirportInfoServiceProxy(TestAirports[] testAirports)
     {
         _testAirports = testAirports;
